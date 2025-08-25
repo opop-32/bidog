@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小象的日式便当屋</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #ff6b6b;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0px #ffeaa7;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #ffeaa7;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .bento-box {
+            width: 300px;
+            height: 300px;
+            background-color: #f9f9f9;
+            border: 3px solid #ff6b6b;
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+            padding: 10px;
+            background-image: linear-gradient(45deg, #f3f3f3 25%, transparent 25%), 
+                              linear-gradient(-45deg, #f3f3f3 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #f3f3f3 75%), 
+                              linear-gradient(-45deg, transparent 75%, #f3f3f3 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+        
+        .bento-cell {
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 5px;
+            border: 1px dashed #ddd;
+        }
+        
+        .ingredients {
+            flex: 1;
+            min-width: 250px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .ingredient {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            font-size: 2rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            user-select: none;
+        }
+        
+        .ingredient:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .ingredient:active {
+            cursor: grabbing;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        #serve-btn {
+            background: linear-gradient(to right, #ff6b6b, #ff8e8e);
+            color: white;
+        }
+        
+        #reset-btn {
+            background: linear-gradient(to right, #4ecdc4, #6ee7e7);
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .character {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .elephant {
+            font-size: 5rem;
+            animation: bounce 2s infinite;
+        }
+        
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border: 2px dashed #ff6b6b;
+        }
+        
+        .score {
+            font-size: 1.2rem;
+            color: #ff6b6b;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .ingredients {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐘 小象的日式便当屋 🍱</h1>
+            <p>拖放食材到便当盒中，为小象制作美味的日式便当吧！</p>
+        </header>
+        
+        <div class="game-info">
+            <div>分数: <span class="score" id="score">0</span></div>
+            <div>已完成: <span id="completed">0</span>/<span id="total">5</span></div>
+            <div>时间: <span id="time">120</span>秒</div>
+        </div>
+        
+        <div class="character">
+            <div class="elephant">🐘</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="bento-box" id="bento-box">
+                <div class="bento-cell" id="cell1"></div>
+                <div class="bento-cell" id="cell2"></div>
+                <div class="bento-cell" id="cell3"></div>
+                <div class="bento-cell" id="cell4"></div>
+                <div class="bento-cell" id="cell5"></div>
+                <div class="bento-cell" id="cell6"></div>
+                <div class="bento-cell" id="cell7"></div>
+                <div class="bento-cell" id="cell8"></div>
+                <div class="bento-cell" id="cell9"></div>
+            </div>
+            
+            <div class="ingredients">
+                <div class="ingredient" draggable="true" style="background-color: #ff6b6b;" data-type="strawberry">🍓</div>
+                <div class="ingredient" draggable="true" style="background-color: #fdcb6e;" data-type="egg">🍳</div>
+                <div class="ingredient" draggable="true" style="background-color: #00b894;" data-type="broccoli">🥦</div>
+                <div class="ingredient" draggable="true" style="background-color: #e17055;" data-type="shrimp">🍤</div>
+                <div class="ingredient" draggable="true" style="background-color: #ffeaa7;" data-type="rice">🍚</div>
+                <div class="ingredient" draggable="true" style="background-color: #fab1a0;" data-type="fish">🐟</div>
+                <div class="ingredient" draggable="true" style="background-color: #a29bfe;" data-type="plum">🍙</div>
+                <div class="ingredient" draggable="true" style="background-color: #fd79a8;" data-type="dessert">🍡</div>
+                <div class="ingredient" draggable="true" style="background-color: #74b9ff;" data-type="seaweed">🍘</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="serve-btn">为小象上菜</button>
+            <button id="reset-btn">重置便当</button>
+        </div>
+        
+        <div class="message" id="message">
+            欢迎！请为小象制作美味的日式便当吧！
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 游戏元素
+            const bentoBox = document.getElementById('bento-box');
+            const ingredients = document.querySelectorAll('.ingredient');
+            const serveBtn = document.getElementById('serve-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const messageEl = document.getElementById('message');
+            const scoreEl = document.getElementById('score');
+            const completedEl = document.getElementById('completed');
+            const timeEl = document.getElementById('time');
+            
+            // 游戏状态
+            let score = 0;
+            let completed = 0;
+            let total = 5;
+            let timeLeft = 120;
+            let gameInterval;
+            
+            // 初始化游戏
+            function initGame() {
+                score = 0;
+                completed = 0;
+                timeLeft = 120;
+                
+                updateUI();
+                setupDragAndDrop();
+                
+                // 设置游戏计时器
+                clearInterval(gameInterval);
+                gameInterval = setInterval(() => {
+                    timeLeft--;
+                    timeEl.textContent = timeLeft;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(gameInterval);
+                        endGame();
+                    }
+                }, 1000);
+                
+                messageEl.textContent = "游戏开始！为小象制作美味的便当吧！";
+                messageEl.style.backgroundColor = "#f8f9fa";
+                messageEl.style.color = "#333";
+            }
+            
+            // 设置拖放功能
+            function setupDragAndDrop() {
+                // 为所有食材添加拖动事件
+                ingredients.forEach(ingredient => {
+                    ingredient.addEventListener('dragstart', function(e) {
+                        e.dataTransfer.setData('text/plain', e.target.dataset.type);
+                        setTimeout(() => {
+                            e.target.style.opacity = '0.5';
+                        }, 0);
+                    });
+                    
+                    ingredient.addEventListener('dragend', function(e) {
+                        e.target.style.opacity = '1';
+                    });
+                });
+                
+                // 为便当盒单元格添加放置事件
+                const cells = document.querySelectorAll('.bento-cell');
+                cells.forEach(cell => {
+                    cell.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                    });
+                    
+                    cell.addEventListener('dragenter', function(e) {
+                        e.preventDefault();
+                        this.style.backgroundColor = '#e8f4fc';
+                    });
+                    
+                    cell.addEventListener('dragleave', function() {
+                        this.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+                    });
+                    
+                    cell.addEventListener('drop', function(e) {
+                        e.preventDefault();
+                        this.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+                        
+                        const ingredientType = e.dataTransfer.getData('text/plain');
+                        const ingredient = document.querySelector(`[data-type="${ingredientType}"]`);
+                        
+                        // 复制食材到单元格
+                        const clone = ingredient.cloneNode(true);
+                        clone.style.opacity = '1';
+                        clone.style.transform = 'scale(0.8)';
+                        clone.style.margin = '0';
+                        clone.style.cursor = 'default';
+                        
+                        this.innerHTML = '';
+                        this.appendChild(clone);
+                    });
+                });
+            }
+            
+            // 为小象上菜
+            serveBtn.addEventListener('click', function() {
+                const cells = document.querySelectorAll('.bento-cell');
+                let filledCells = 0;
+                
+                cells.forEach(cell => {
+                    if (cell.children.length > 0) {
+                        filledCells++;
+                    }
+                });
+                
+                if (filledCells >= 5) {
+                    // 计算分数
+                    const points = filledCells * 10 + Math.floor(Math.random() * 20);
+                    score += points;
+                    completed++;
+                    
+                    messageEl.textContent = `太棒了！小象很喜欢你的便当！+${points}分`;
+                    messageEl.style.backgroundColor = "#d4edda";
+                    messageEl.style.color = "#155724";
+                    
+                    // 动画效果
+                    serveBtn.style.animation = 'celebrate 0.5s';
+                    setTimeout(() => {
+                        serveBtn.style.animation = '';
+                    }, 500);
+                    
+                    // 检查是否完成所有便当
+                    if (completed >= total) {
+                        clearInterval(gameInterval);
+                        messageEl.textContent = `恭喜！你为小象完成了所有便当！最终得分: ${score}`;
+                    }
+                    
+                    // 清空便当盒
+                    setTimeout(() => {
+                        cells.forEach(cell => {
+                            cell.innerHTML = '';
+                        });
+                    }, 1000);
+                    
+                    updateUI();
+                } else {
+                    messageEl.textContent = "便当盒还没有装满哦！至少需要5种食材。";
+                    messageEl.style.backgroundColor = "#f8d7da";
+                    messageEl.style.color = "#721c24";
+                }
+            });
+            
+            // 重置便当盒
+            resetBtn.addEventListener('click', function() {
+                const cells = document.querySelectorAll('.bento-cell');
+                cells.forEach(cell => {
+                    cell.innerHTML = '';
+                });
+                
+                messageEl.textContent = "便当盒已清空！重新开始制作吧！";
+                messageEl.style.backgroundColor = "#f8f9fa";
+                messageEl.style.color = "#333";
+            });
+            
+            // 更新UI显示
+            function updateUI() {
+                scoreEl.textContent = score;
+                completedEl.textContent = completed;
+                document.getElementById('total').textContent = total;
+            }
+            
+            // 游戏结束
+            function endGame() {
+                messageEl.textContent = `时间到！游戏结束。你的最终得分: ${score}`;
+                messageEl.style.backgroundColor = "#fff3cd";
+                messageEl.style.color = "#856404";
+            }
+            
+            // 初始化游戏
+            initGame();
+        });
+    </script>
+</body>
+</html>
